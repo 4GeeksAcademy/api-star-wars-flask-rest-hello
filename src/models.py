@@ -113,3 +113,4 @@ class Factions(db.Model):
             "capital": self.capital,
             "affiliation": self.affiliation,
         }
+    
