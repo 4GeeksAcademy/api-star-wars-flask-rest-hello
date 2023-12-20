@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Star_Systems, Factions, Planets, Species, Characters 
+from models import db, User, Star_Systems, Factions, Planets, Species, Characters, User_Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -36,21 +36,17 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    serialized_users = [User.serialize() for User in users]
+    return({'msg': 'Here you go all the users currently in the database', 'result': serialized_users}), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
-
-
-@app.route('/people', methods=['GET'])
-def get_people():
-    people = User.query.all()
-    serialized_people = [user.serialize() for user in people]
-    return({'msg': 'Here you go all the people currently in the database', 'result': serialized_people}), 200 
+@app.route('/characters', methods=['GET'])
+def get_characters():
+    character = Characters.query.all() 
+    serialized_characters = [Characters.serialize() for Characters in character] 
+    return({'msg': 'Here you go all the people currently in the database', 'result': serialized_characters}), 200 
 
 @app.route('/planets', methods=['GET'])
 def get_planets():
@@ -58,7 +54,18 @@ def get_planets():
     serialized_all_planets = [Planets.serialize() for Planets in all_planets]
     return({'msg': 'Here you go all the planets currently in the database', 'result': serialized_all_planets}), 200
 
-# this only runs if `$ python src/app.py` is executed
+@app.route('/characters/<int:character_id>', methods=['GET'])
+def get_one_person(character_id):
+    character = Characters.query.get(character_id)
+    return jsonify({'msg': 'Here you go the person', 'result': character.serialize()}), 200
+    
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_one_planet(planet_id):
+    planet = Planets.query.get(planet_id)
+    return jsonify({'msg': 'Here you go the planet', 'result': planet.serialize()}), 200
+
+    
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
