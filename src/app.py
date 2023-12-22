@@ -64,8 +64,59 @@ def get_one_planet(planet_id):
     planet = Planets.query.get(planet_id)
     return jsonify({'msg': 'Here you go the planet', 'result': planet.serialize()}), 200
 
+@app.route('/users/favorites', methods=['GET'])
+def get_user_favorites():
+    current_user_id = get_current_user_id()
+    user_favorites = User_Favorite.query.filter_by(user_Id= current_user_id).all()
+    serialized_favorites = [favorite.serialize() for favorite in user_favorites]
+    return {'msg': 'Here are the favorites for the current user', 'result': serialized_favorites}, 200
 
-    
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def add_favorite_planet(planet_id):
+     current_user_id = get_current_user_id()
+     existing_favorite = User_Favorite.query.filter_by(user_Id=current_user_id, planet_Id=planet_id).first()
+     if existing_favorite:
+            return {'msg': 'Favorite planet already exists for the current user'}, 400
+     new_favorite = User_Favorite(user_Id=current_user_id, planet_Id=planet_id, name_of_favorite='planet')
+     db.session.add(new_favorite)
+     db.session.commit()
+     return {'msg': 'Favorite planet added successfully'}, 201
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST'])
+def add_favorite_person(people_id):
+     current_user_id = get_current_user_id()
+     existing_favorite = User_Favorite.query.filter_by(user_Id=current_user_id, character_Id=people_id_id).first()
+     if existing_favorite:
+            return {'msg': 'Favorite planet already exists for the current user'}, 400
+     new_favorite = User_Favorite(user_Id=current_user_id, character_Id=people_id, name_of_favorite='people')
+     db.session.add(new_favorite)
+     db.session.commit()
+     return {'msg': 'Favorite people added successfully'}, 201
+        
+
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id):
+     current_user_id = get_current_user_id()
+     favorite_planet = User_Favorite.query.filter_by(user_Id=current_user_id, planet_Id=planet_id).first()
+     if not favorite_planet: 
+        return {'msg': 'Favorite planet not found for the current user'}, 404
+     db.session.delete(favorite_planet)
+     db.session.commit()
+     return {'msg': 'Favorite planet deleted successfully'}, 200
+
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_favorite_person(people_id):
+     current_user_id = get_current_user_id()
+     favorite_person = User_Favorite.query.filter_by(user_Id=current_user_id, character_Id=people_id).first()
+     if not favorite_person: 
+        return {'msg': 'Favorite person not found for the current user'}, 404
+     db.session.delete(favorite_person)
+     db.session.commit()
+     return {'msg': 'Favorite person deleted successfully'}, 200
+
+def get_current_user_id():
+    return 1
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
