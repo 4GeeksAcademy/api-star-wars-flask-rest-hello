@@ -20,7 +20,7 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             "is_active": self.is_active,
-            "favorites": self.favorites
+            "favorites": [favorite.serialize() for favorite in self.favorites]
             # do not serialize the password, its a security breach
         }
 
@@ -72,13 +72,13 @@ class Planets(db.Model):
     favorite_planets = db.relationship("User_Favorite", back_populates = "planets", uselist = True)
 
     def __repr__(self):
-        return '<Planets %r>' % self.planets
+        return '<Planets %r>' % self.name
 
     def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
-            "favorites": self.favorite_planets,
+            "favorites": [favorite.serialize() for favorite in self.favorite_planets],
             "population": self.population,
             "terrain": self.terrain,
             "climate": self.climate,

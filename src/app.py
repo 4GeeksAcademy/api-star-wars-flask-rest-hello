@@ -36,7 +36,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/users', methods=['GET'])
+@app.route('/user', methods=['GET'])
 def get_users():
     users = User.query.all()
     serialized_users = [User.serialize() for User in users]
@@ -64,8 +64,8 @@ def get_one_planet(planet_id):
     planet = Planets.query.get(planet_id)
     return jsonify({'msg': 'Here you go the planet', 'result': planet.serialize()}), 200
 
-    
 
+    
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
